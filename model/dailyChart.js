@@ -7,7 +7,7 @@ module.exports = mongoose.model('DailyChart',new Schema({
     open : Number,
     close : Number,
     high : Number,
-    Low : Number,
+    low : Number,
     volume : Number,
     bVolume : Number,
     sVolume : Number

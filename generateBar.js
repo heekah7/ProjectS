@@ -9,21 +9,34 @@ var DailyChart = require( './model/dailyChart' );
 
 Counter.find({}).select('code -_id').exec( function ( err, counter ) {
     if (err) throw err;
-    getTickData(counter, 0);
+    getTickData(counter, 0, true);
 } );
 
-function getTickData(counter, counterIndex){
+function getTickData(counter, counterIndex, isFirstHalf){
     console.log(counter[counterIndex]);
-    Transaction.find({code: counter[counterIndex].code}, function ( err, tickData ) {
-        if (err) throw err;
-        DailyChart.collection.insert(convertToOHLC(tickData), function ( err, docs ) {
-            if (err) return err;
-            counterIndex += 1;
-            if (counterIndex < counter.length) {
-                getTickData(counter, counterIndex);
-            }
-        });
-    })
+    if (isFirstHalf) {
+        Transaction.find({code: counter[counterIndex].code, time: {$lte: new Date(2016-01-01)}}, function ( err, tickData ) {
+            if (err) throw err;
+            DailyChart.collection.insert(convertToOHLC(tickData), function ( err ) {
+                if (err) return err;
+                // counterIndex += 1;
+                if (counterIndex < counter.length) {
+                    getTickData(counter, counterIndex, false);
+                }
+            });
+        })
+    } else {
+        Transaction.find({code: counter[counterIndex].code, time: {$gt: new Date(2016-01-01)}}, function ( err, tickData ) {
+            if (err) throw err;
+            DailyChart.collection.insert(convertToOHLC(tickData), function ( err, docs ) {
+                if (err) return err;
+                counterIndex += 1;
+                if (counterIndex < counter.length) {
+                    getTickData(counter, counterIndex, true);
+                }
+            });
+        })
+    }
 }
 
 function convertToOHLC(data) {
