@@ -5,16 +5,24 @@ mongoose.connect( 'mongodb://localhost/TickData' ); // connect to database
 
 var Counter = require( './model/counter' );
 var Transaction = require( './model/transaction' );
+var DailyChart = require( './model/dailyChart' );
 
 Counter.find({}).select('code -_id').exec( function ( err, counter ) {
     if (err) throw err;
-    console.log('0');
     getTickData(counter, 0);
 } );
 
 function getTickData(counter, counterIndex){
+    console.log(counter[counterIndex]);
     Transaction.find({code: counter[counterIndex].code}, function ( err, tickData ) {
         if (err) throw err;
+        DailyChart.collection.insert(convertToOHLC(tickData), function ( err, docs ) {
+            if (err) return err;
+            counterIndex += 1;
+            if (counterIndex < counter.length) {
+                getTickData(counter, counterIndex);
+            }
+        });
     })
 }
 
@@ -31,7 +39,7 @@ function convertToOHLC(data) {
         var filteredData = data.filter(e => e.date === d);
         var filteredBData = data.filter(e => e.date === d && e.mode === 'B');
         var filteredSData = data.filter(e => e.date === d && e.mode === 'S');
-
+        tempObject.code = filteredData[0].code;
         tempObject.time = d;
         tempObject.open = filteredData[0].price;
         tempObject.close = filteredData[filteredData.length - 1].price;
