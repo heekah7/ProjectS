@@ -9,34 +9,26 @@ var DailyChart = require( './model/dailyChart' );
 
 Counter.find({}).select('code -_id').exec( function ( err, counter ) {
     if (err) throw err;
-    getTickData(counter, 0, true);
+    getTickData(counter, 0);
 } );
 
-function getTickData(counter, counterIndex, isFirstHalf){
+function getTickData(counter, counterIndex){
     console.log(counter[counterIndex]);
-    if (isFirstHalf) {
-        Transaction.find({code: counter[counterIndex].code, time: {$lte: new Date(2016-01-01)}}, function ( err, tickData ) {
-            if (err) throw err;
-            DailyChart.collection.insert(convertToOHLC(tickData), function ( err ) {
-                if (err) return err;
-                // counterIndex += 1;
-                if (counterIndex < counter.length) {
-                    getTickData(counter, counterIndex, false);
-                }
-            });
-        })
-    } else {
-        Transaction.find({code: counter[counterIndex].code, time: {$gt: new Date(2016-01-01)}}, function ( err, tickData ) {
-            if (err) throw err;
+    Transaction.find({code: counter[counterIndex].code}, function ( err, tickData ) {
+        if (err) throw err;
+        var array2 = tickData.splice(0, Math.ceil(tickData.length / 2));
+        DailyChart.collection.insert(convertToOHLC(tickData), function ( err, docs ) {
+            if (err) return err;
+
             DailyChart.collection.insert(convertToOHLC(tickData), function ( err, docs ) {
                 if (err) return err;
                 counterIndex += 1;
                 if (counterIndex < counter.length) {
-                    getTickData(counter, counterIndex, true);
+                    getTickData(counter, counterIndex);
                 }
             });
-        })
-    }
+        });
+    })
 }
 
 function convertToOHLC(data) {
@@ -53,7 +45,7 @@ function convertToOHLC(data) {
         var filteredBData = data.filter(e => e.date === d && e.mode === 'B');
         var filteredSData = data.filter(e => e.date === d && e.mode === 'S');
         tempObject.code = filteredData[0].code;
-        tempObject.time = d;
+        tempObject.time = new Date(d);
         tempObject.open = filteredData[0].price;
         tempObject.close = filteredData[filteredData.length - 1].price;
         tempObject.high = d3.max(filteredData, e => e.price);
