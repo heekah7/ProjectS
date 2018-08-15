@@ -16,18 +16,25 @@ function getTickData(counter, counterIndex){
     console.log(counter[counterIndex]);
     Transaction.find({code: counter[counterIndex].code}, function ( err, tickData ) {
         if (err) throw err;
-        var array2 = tickData.splice(0, Math.ceil(tickData.length / 2));
-        DailyChart.collection.insert(convertToOHLC(tickData), function ( err, docs ) {
-            if (err) return err;
-
+        if (tickData.length == 0) {
+            counterIndex += 1;
+            if (counterIndex < counter.length) {
+                getTickData(counter, counterIndex);
+            }
+        } else {
+            var array2 = tickData.splice(0, Math.ceil(tickData.length / 2));
             DailyChart.collection.insert(convertToOHLC(tickData), function ( err, docs ) {
                 if (err) return err;
-                counterIndex += 1;
-                if (counterIndex < counter.length) {
-                    getTickData(counter, counterIndex);
-                }
+
+                DailyChart.collection.insert(convertToOHLC(array2), function ( err, docs ) {
+                    if (err) return err;
+                    counterIndex += 1;
+                    if (counterIndex < counter.length) {
+                        getTickData(counter, counterIndex);
+                    }
+                });
             });
-        });
+        }
     })
 }
 
