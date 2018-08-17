@@ -5,7 +5,7 @@ var Transaction = require( './model/transaction' );
 var DailyChart = require( './model/dailyChart' );
 var array = [];
 Counter.find( {} ).select( 'code -_id' ).lean().exec( function ( err, counter ) {
-    checkBar(counter, counterIndex);
+    checkBar(counter, 0);
 } );
 
 function checkBar( counter, counterIndex ) {
@@ -16,6 +16,7 @@ function checkBar( counter, counterIndex ) {
         if (counter.length > counterIndex){
             checkBar(counter, counterIndex);
         } else {
+            console.log(array);
             console.log('Done!');
         }
     })
