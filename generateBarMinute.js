@@ -6,33 +6,32 @@ mongoose.connect( 'mongodb://localhost/TickData' ); // connect to database
 var Counter = require( './model/counter' );
 var Transaction = require( './model/transaction' );
 var Minute1Chart = require('./model/minute1Chart');
+var start = process.argv[2];
+var end = process.argv[3];
 
 Counter.find({}).select('code -_id').exec( function ( err, counter ) {
     if (err) throw err;
-    getTickData(counter, 0);
+    var counterArray = end ? counter.splice(start,end) : counter.splice(start);
+    getTickData(counterArray, 0);
 } );
 
 function getTickData(counter, counterIndex){
     console.log(counter[counterIndex]);
     Transaction.find({code: counter[counterIndex].code}, function ( err, tickData ) {
         if (err) throw err;
-        if (tickData.length == 0) {
+        var minuteData = convertToOHLC(tickData);
+        if (tickData.length == 0 || minuteData.length == 0) {
             counterIndex += 1;
             if (counterIndex < counter.length) {
                 getTickData(counter, counterIndex);
             }
         } else {
-            var array2 = tickData.splice(0, Math.ceil(tickData.length / 2));
             Minute1Chart.collection.insert(convertToOHLC(tickData), function ( err, docs ) {
                 if (err) return err;
-
-                Minute1Chart.collection.insert(convertToOHLC(array2), function ( err, docs ) {
-                    if (err) return err;
-                    counterIndex += 1;
-                    if (counterIndex < counter.length) {
-                        getTickData(counter, counterIndex);
-                    }
-                });
+                counterIndex += 1;
+                if (counterIndex < counter.length) {
+                    getTickData(counter, counterIndex);
+                }
             });
         }
     })
