@@ -66,11 +66,11 @@ function convertToOHLC(data) {
     var result = [];
     data.forEach(d => {
         d.date = new Date(d.time).toISOString().substring(0,10);
-    });
+});
 
     var allDates = [...new Set(data.map(d => d.date))];
     allDates.forEach(d => {
-    var minuteCounter = 0;
+        var minuteCounter = 0;
     var hourCounter = 9;
     var halfTime = new Date(new Date(d).setHours(12,30));
     var halfTimeBegin = new Date(new Date(d).setHours(14,30));
@@ -111,14 +111,14 @@ function convertToOHLC(data) {
             result.push(tempObject);
         }
 
-        if (minuteCounter == 59) {
+        minuteCounter += 5;
+
+        if (minuteCounter == 60) {
             hourCounter += 1;
             minuteCounter = 0;
-        } else {
-            minuteCounter += 1;
         }
     }
 
-    })
+})
     return result;
 };
