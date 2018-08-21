@@ -19,22 +19,36 @@ Counter.find({}).select('code -_id').exec( function ( err, counter ) {
 function getTickData(counter, counterIndex){
     var code = counter[counterIndex].code;
     console.log(code);
-    Transaction.find({code: code, time:{$lte:'2016-06-30'}}, function ( err, tickData ) {
+    Transaction.find({code: code, time:{$lte:'2016-01-01'}}, function ( err, tickData ) {
         if (err) throw err;
         if (tickData.length > 0) {
             var minuteData = convertToOHLC(tickData);
             if (minuteData.length > 0 ){
                 Minute1Chart.collection.insert(minuteData, function ( err, docs ) {
                     if (err) return err;
-                    Transaction.find({code: code,time:{$gt:'2016-06-30'}}, function ( err, tickData ) {
+                    Transaction.find({code: code,time:{$gt:'2016-01-01',$lte:'2017-06-30'}}, function ( err, tickData ) {
                         var tickDataLength = tickData.length;
                         if (tickDataLength > 0) {
                             var data = convertToOHLC(tickData);
                             Minute1Chart.collection.insert(data, function ( err, docs ) {
-                                counterIndex += 1;
-                                if (counterIndex < counter.length) {
-                                    getTickData(counter, counterIndex);
-                                }
+                                Transaction.find({code: code,time:{$gt:'2017-06-30'}}, function ( err, tickData ) {
+                                    var tickDataLength = tickData.length;
+                                    if (tickDataLength > 0) {
+                                        var data = convertToOHLC(tickData);
+                                        Minute1Chart.collection.insert(data, function ( err, docs ) {
+                                            counterIndex += 1;
+                                            if (counterIndex < counter.length) {
+                                                getTickData(counter, counterIndex);
+                                            }
+                                        })
+                                    } else {
+                                        counterIndex += 1;
+                                        if (counterIndex < counter.length) {
+                                            getTickData(counter, counterIndex);
+                                        }
+
+                                    }
+                                })
                             })
                         } else {
                             counterIndex += 1;
@@ -43,7 +57,7 @@ function getTickData(counter, counterIndex){
                             }
 
                         }
-                    })
+                    });
                 });
             } else {
                 counterIndex += 1;
