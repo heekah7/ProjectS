@@ -5,21 +5,21 @@ var Minute1Chart = require( './model/minute1Chart' );
 var stackCall = 0;
 Counter.find( {} ).select( 'code -_id' ).exec( function ( err, counter ) {
     if ( err ) throw err;
-    // var counterArray = end ? counter.splice( start, end ) : counter.splice( start );
-    getMinuteData( counter, 0 );
+    var counterArray = end ? counter.splice( start, end ) : counter.splice( start );
+    getMinuteData( counterArray, 0 );
 } );
 
 function getMinuteData( counter, counterIndex ) {
     if (counter.length > counterIndex) {
+
+        console.log(counterIndex + ' ' + counter[counterIndex].code);
         Minute1Chart.find( { code: counter[counterIndex].code }, function ( err, data ) {
-            console.log(data.length);
             calcRealPrice( counter, counterIndex, data, 0 );
         } );
     }
 }
 
 function calcRealPrice( counter, counterIndex, data, dataIndex ) {
-    console.log(dataIndex);
     if (dataIndex > 1 && ( data[dataIndex].open === 0 && data[dataIndex - 1].close !== 0 )) {
         stackCall = 0;
         data[dataIndex].open = data[dataIndex-1].close;
