@@ -33,7 +33,7 @@ function getTickData( counter, counterIndex ) {
         var volSMA5 = SMA.calculate( { period: 5, values: volumeArray } );
         var bvolSMA5 = SMA.calculate( { period: 5, values: bVolumeArray } );
         var svolSMA5 = SMA.calculate( { period: 5, values: sVolumeArray } );
-        if (data.length === 0) {
+        if (data.length > 0) {
             for ( var i = 0; i < data.length; i++ ) {
                 result.push( new VolumeAverage( {
                     code: code,
