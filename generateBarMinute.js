@@ -88,7 +88,7 @@ function convertToOHLC(data) {
     var hourCounter = 9;
     var halfTime = new Date(new Date(d).setHours(12,30));
     var halfTimeBegin = new Date(new Date(d).setHours(14,30));
-    var fullTime = new Date(new Date(d).setHours(17,00));
+    var fullTime = new Date(new Date(d).setHours(17));
     while ( new Date(new Date(d).setHours(hourCounter,minuteCounter)) < fullTime) {
         if (new Date(new Date(d).setHours(hourCounter,minuteCounter)) < halfTime ||
             new Date(new Date(d).setHours(hourCounter,minuteCounter)) >= halfTimeBegin) {
