@@ -45,13 +45,13 @@ function getTickData( counter, counterIndex ) {
                 sVMA5: i >= 4 ? svolSMA5[ i - 4 ] : data[ i ].sVolume
             } ) );
             if ( i === data.length - 1 ) {
-                result.save(function ( err ) {
+                VolumeAverage.collection.insert(result, function ( err, docs ) {
                     if (err) throw err;
                     bar1.update(counterIndex);
                     if (counter.length > counterIndex + 1) {
                         getTickData(counter, counterIndex + 1)
                     }
-                })
+                });
             }
         }
 
