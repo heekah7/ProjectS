@@ -36,7 +36,7 @@ function getTickData( counter, counterIndex ) {
         var svolSMA = SMA.calculate( { period: 360, values: sVolumeArray } );
         if (data.length > 0) {
             for ( var i = 0; i < data.length; i++ ) {
-                result.push( new VolumeAverage( {
+                result.push( new MVolumeAverage( {
                     code: code,
                     time: data[ i ].time,
                     vSMA5: i >= 19 ? volSMA5[ i - 1799 ] : data[ i ].volume,
