@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-module.exports = mongoose.model('VolumeAverage',new Schema({
+module.exports = mongoose.model('MVolumeAverage',new Schema({
     code : String,
     time : Date,
     vSMA5 : Number,
