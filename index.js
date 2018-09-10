@@ -14,6 +14,8 @@ mongoose.connect( 'mongodb://localhost/TickData' ); // connect to database
 var Counter = require( './model/counter' );
 var Transaction = require( './model/transaction' );
 var DailyChart = require( './model/dailyChart' );
+var MinChart = require( './model/minute1Chart' );
+
 
 app.get( '/init', function ( req, res ) {
     Counter.find( {} ).select( 'code name lname -_id' ).exec( function ( err, counter ) {
@@ -37,6 +39,16 @@ app.post( '/historicalTransaction/:code/:fDate', function ( req, res ) {
     end.setDate(end.getDate() + 1);
     Transaction.find({code: stockCode, time:{$gte: from ,$lte: end }}).lean().exec(function ( err, trans ) {
         res.json(trans);
+    });
+});
+
+app.post( '/historicalMinChart/:code/:fDate', function ( req, res ) {
+    var stockCode = req.param( "code" );
+    var from = new Date(req.param( 'fDate' ));
+    var end = new Date(from);
+    end.setDate(end.getDate() + 1);
+    MinChart.find({code: stockCode, time:{$gte: from ,$lte: end }}).lean().exec(function ( err, min ) {
+        res.json(min);
     });
 });
 
