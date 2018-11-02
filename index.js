@@ -52,4 +52,7 @@ app.post( '/historicalMinChart/:code/:fDate', function ( req, res ) {
     });
 });
 
+server.use(express.static(__dirname + '/www'));
+
+
 app.listen( 8080 );
